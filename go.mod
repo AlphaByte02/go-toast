@@ -1,3 +1,3 @@
-module github.com/electricbubble/go-toast
+module github.com/alphabyte02/go-toast
 
-go 1.17
+go 1.23.0

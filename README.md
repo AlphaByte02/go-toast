@@ -1,13 +1,13 @@
 # Golang-Toast
 
-[![license](https://img.shields.io/github/license/electricbubble/go-toast)](https://github.com/electricbubble/go-toast/blob/master/LICENSE)
+[![license](https://img.shields.io/github/license/alphabyte02/go-toast)](https://github.com/alphabyte02/go-toast/blob/master/LICENSE)
 
 cross-platform library for sending desktop notifications
 
 ## Installation
 
 ```shell script
-go get github.com/electricbubble/go-toast
+go get github.com/AlphaBye02/go-toast
 ```
 
 ## Example
@@ -17,7 +17,7 @@ go get github.com/electricbubble/go-toast
   package main
   
   import (
-      "github.com/electricbubble/go-toast"
+      "github.com/alphabyte02/go-toast"
   )
   
   func main() {
@@ -32,7 +32,7 @@ go get github.com/electricbubble/go-toast
     package main
     
     import (
-        "github.com/electricbubble/go-toast"
+        "github.com/alphabyte02/go-toast"
     )
     
     func main() {
@@ -53,7 +53,7 @@ go get github.com/electricbubble/go-toast
   package main
   
   import (
-      "github.com/electricbubble/go-toast"
+      "github.com/alphabyte02/go-toast"
   )
   
   func main() {
@@ -81,7 +81,7 @@ go get github.com/electricbubble/go-toast
   
   import (
       "fmt"
-      "github.com/electricbubble/go-toast"
+      "github.com/alphabyte02/go-toast"
   )
   
   func main() {

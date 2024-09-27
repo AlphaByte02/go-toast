@@ -38,6 +38,9 @@ func WithIcon(pathIcon string) NotificationOption {
 	}
 }
 
+// WithIconRaw
+//
+// An optional byte array of a image to display to the left of the title & message.
 func WithIconRaw(raw []byte) NotificationOption {
 	return func(n *notification) {
 		randBytes := make([]byte, 4)
@@ -61,7 +64,7 @@ func WithActivationType(activationType string) NotificationOption {
 
 // WithActivationArguments
 //
-// // The activation/action arguments (invoked when the user clicks the notification)
+// The activation/action arguments (invoked when the user clicks the notification)
 func WithActivationArguments(activationArguments string) NotificationOption {
 	return func(n *notification) {
 		n.ActivationArguments = activationArguments
@@ -77,7 +80,7 @@ func WithActivationArguments(activationArguments string) NotificationOption {
 // user's choice. Examples of protocol type action buttons include: "bingmaps:?q=sushi" to open up Windows 10's
 // maps app with a pre-populated search field set to "sushi".
 //
-//     Action{"protocol", "Open Maps", "bingmaps:?q=sushi"}
+//	Action{"protocol", "Open Maps", "bingmaps:?q=sushi"}
 func WithProtocolAction(label string, arguments ...string) NotificationOption {
 	return func(n *notification) {
 		if len(n.Actions) == 0 {
@@ -115,15 +118,30 @@ func WithDuration(nd NotificationDuration) NotificationOption {
 	}
 }
 
+// WithLongDuration
+//
+// Set the duration to Long
 func WithLongDuration() NotificationOption {
 	return func(n *notification) {
 		n.Duration = Long
 	}
 }
 
+// WithShortDuration
+//
+// Set the duration to Short
 func WithShortDuration() NotificationOption {
 	return func(n *notification) {
 		n.Duration = Short
+	}
+}
+
+// WithExpirationTime
+//
+// Set the ExpirationTime
+func WithExpirationTime(d time.Duration) NotificationOption {
+	return func(n *notification) {
+		n.ExpirationTime = d
 	}
 }
 
@@ -172,7 +190,7 @@ const (
 // user's choice. Examples of protocol type action buttons include: "bingmaps:?q=sushi" to open up Windows 10's
 // maps app with a pre-populated search field set to "sushi".
 //
-//     Action{"protocol", "Open Maps", "bingmaps:?q=sushi"}
+//	Action{"protocol", "Open Maps", "bingmaps:?q=sushi"}
 type Action struct {
 	Type      string
 	Label     string
@@ -183,8 +201,8 @@ var _ notifier = (*notification)(nil)
 
 func newNotification(message string, opts ...NotificationOption) *notification {
 	n := &notification{
-		AppID:          "GO APP",
-		Title:          "GO APP",
+		AppID:          "Windows Notification",
+		Title:          "Windows Notification Title",
 		Message:        message,
 		ActivationType: "protocol",
 		Duration:       Short,
@@ -221,7 +239,7 @@ func (n *notification) push() error {
 	if len(n._tmpIconFilename) != 0 {
 		launch += "; Start-Sleep -m 50 ; Remove-Item " + n._tmpIconFilename
 	}
-	cmd := exec.Command("PowerShell", "-ExecutionPolicy", "Bypass", launch)
+	cmd := exec.Command("PowerShell", "-NoProfile", "-ExecutionPolicy", "Bypass", launch)
 	fixCmd("PowerShell", cmd)
 	cmd.SysProcAttr = &syscall.SysProcAttr{HideWindow: true}
 	return cmd.Run()
@@ -275,11 +293,21 @@ $template = @"
 $xml = New-Object Windows.Data.Xml.Dom.XmlDocument
 $xml.LoadXml($template)
 $go_toast = New-Object Windows.UI.Notifications.ToastNotification $xml
+
+{{if .ExpirationTime}}
+$go_toast.ExpirationTime = [System.DateTimeOffset]::Now.AddSeconds({{ .ExpirationTime | toSeconds }})
+{{end}}
+
 [Windows.UI.Notifications.ToastNotificationManager]::CreateToastNotifier($APP_ID).Show($go_toast)
 `
 
-		_tpl, err = template.New("_tpl").Parse(tplNotification)
+		_tpl, err = template.New("_tpl").Funcs(template.FuncMap{
+			"toSeconds": func(d time.Duration) int {
+				return int(d.Seconds())
+			},
+		}).Parse(tplNotification)
 	})
+
 	if err != nil {
 		return nil, err
 	}
@@ -322,6 +350,9 @@ type notification struct {
 
 	// How long the notification should show up for (short/long)
 	Duration NotificationDuration
+
+	// ExpirationTime
+	ExpirationTime time.Duration
 }
 
 func escapeNotificationString(in string) string {
